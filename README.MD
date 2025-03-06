@@ -48,6 +48,13 @@
             e.g. fontawesome-free-6.7.2-web
         Paste those folders into the "assets" folder
 
+    Adding Data into the database enmasse - as in copy paste from a Libre ODF Spreadsheet (ODS file)
+    sudo add-apt-repository -y ppa:linuxgndu/sqlitebrowser
+    sudo apt-get update
+    sudo apt-get install sqlitebrowser
+    go to your table, create empty rows and then copy and paste matching cells into the db and Write
+        Keyword : "matching" cells :)
+
 ### NOTE : 
 - There are many alternate ways to achieve the same result. 
 - This is not ready for a large project. 
