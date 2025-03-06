@@ -1,0 +1,151 @@
+@import '~@fortawesome/fontawesome-free/css/all.css';
+
+body {
+    font-family: sans-serif;
+    margin: 0 50px;
+    background-color: #e5e5e5;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    scroll-behavior: auto;
+  }
+
+  .itemmgmtapp {
+    margin-top: auto;
+    background-color: #fff;
+    width: 100%;
+    height: 95vh;
+    border: 5px solid #abcea1;
+    border-radius: 8px;
+    padding: 15px;
+    overflow-y: scroll;
+    scroll-behavior: auto;
+  }
+
+  .itemmgmtapp::-webkit-scrollbar {
+    width: 0 !important;
+  }
+
+  #addNew {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(171, 206, 161, 0.35);
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .fa-plus {
+    background-color: #abcea1;
+    padding: 3px;
+    border-radius: 3px;
+  }
+
+  #nameerrormsg {
+    color: red;
+  }
+
+  #priceerrormsg {
+    color: red;
+  }
+
+  #item-list-div {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  #item-list-div div {
+    background-color: #deecee;
+    display: grid;
+    gap: 4px;
+  }
+
+  #item-list-div div .options {
+    justify-self: center;
+    display: flex;
+    gap: 20px;
+  }
+
+.table {
+    display: grid;
+    overflow-y: scroll;
+    scroll-behavior: auto;
+    justify-self: center;
+    overflow-y: scroll;
+    scroll-behavior: auto;
+    width: 750px;
+    height: auto;
+}
+
+.table::-webkit-scrollbar {
+  width: 0 !important;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    border-bottom: 1px solid #eee;
+}
+
+.header-row {
+  font-weight: bold;
+  background-color: #f0f0f0;
+}
+
+.cell {
+    text-align: center;
+    border-right: 1px solid #eee;
+    overflow-wrap: break-word;
+}
+
+.table i {
+  cursor: pointer;
+}
+
+.secondmodule {
+  margin-top: auto;
+  background-color: #fff;
+  width: 100%;
+  height: 95vh;
+  border: 5px solid #abcea1;
+  border-radius: 8px;
+  padding: 15px;
+  overflow-y: scroll;
+  scroll-behavior: auto;
+}
+
+.secondmodule::-webkit-scrollbar {
+  width: 0 !important;
+}
+
+#addNewsecond {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(171, 206, 161, 0.35);
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#item-list-div-second {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+#item-list-div-second div {
+  background-color: #deecee;
+  display: grid;
+  gap: 4px;
+}
+
+#item-list-div-second div .options {
+  justify-self: center;
+  display: flex;
+  gap: 20px;
+}
