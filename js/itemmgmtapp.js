@@ -43,9 +43,7 @@ async function displayallitems () {
         }
         displaytable(allitemsjson);
     } catch (error) {
-        console.error('Error retrieving data:', error);
-        // Handle the error appropriately, e.g., display an error message or retry the operation
-        throw error; // Re-throw the error to propagate it further if needed
+        handleError(error, { scope: 'page' });
     }
 }
 //  mostly replica of displayallitems Exceot fir the first 4 lines
@@ -75,9 +73,7 @@ async function displayfiltereditems () {
         displaytable(filtereditemsjson);
 
     } catch (error) {
-        console.error('Error retrieving data:');
-        // Handle the error appropriately, e.g., display an error message or retry the operation
-        //throw error; // Re-throw the error to propagate it further if needed
+        handleError(error, { scope: 'page' });
     }
   }
 
@@ -122,7 +118,7 @@ async function addItem() {
             resetForm(); 
             displayallitems();
         }
-        else {editeditem = 0; console.log("Deletion did not work" + putresponse.status)}
+        else {editeditem = 0; handleError(new Error('Update failed: '+ putresponse.status), { scope: 'modal' });}
     }
 }
 
@@ -155,7 +151,7 @@ async function deleterow(e) {
         });
         console.log('the DELETE response we got is'+delresponse.ok);
         if (delresponse.ok) {displayallitems();}
-        else {console.log("Deletion did not work"+delresponse.status)}
+        else {handleError(new Error('Deletion failed: '+delresponse.status), { scope: 'page' })}
     }
 }
 
@@ -183,7 +179,7 @@ function formValidation(){
             priceerror.innerHTML = "";
             //both succeeded now submit the new item
             //the funtion below will call the REST API to add the new item to DB
-            addItem();
+            try { addItem(); } catch (e) { handleError(e, { scope: 'modal' }); }
             //now dismiss
         }
     }
@@ -248,3 +244,17 @@ function displaytable(initemsjson) {
 }
 
 // --------END OF FUNCTION DEFINITIONS -----------
+
+// Generic error handler to show error text on the correct page element
+function handleError(err, options) {
+    const message = (err && err.message) ? err.message : String(err);
+    const scope = options && options.scope ? options.scope : 'page';
+    if (scope === 'modal') {
+        const el = document.getElementById('modal-error');
+        if (el) el.textContent = message;
+    } else {
+        const el = document.getElementById('page-error');
+        if (el) el.textContent = message;
+    }
+    console.error(message);
+}

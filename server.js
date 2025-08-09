@@ -57,6 +57,15 @@ function getTableMetadata(tableName, callback) {
   );
 }
 
+// Metadata endpoint for client consumption
+app.get('/api/:table/meta', (req, res) => {
+  const { table } = req.params;
+  getTableMetadata(table, (err, meta) => {
+    if (err) return res.status(400).send(err.message);
+    res.send(meta);
+  });
+});
+
 // Generic dynamic CRUD API
 // List rows
 app.get('/api/:table', (req, res) => {

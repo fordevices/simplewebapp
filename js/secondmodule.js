@@ -29,9 +29,7 @@ async function displaysecondmodule () {
         }
         displaysecondtable(allitemsjson);
     } catch (error) {
-        console.error('Error retrieving data:', error);
-        // Handle the error appropriately, e.g., display an error message or retry the operation
-        throw error; // Re-throw the error to propagate it further if needed
+        handleError(error, { scope: 'page', elementId: 'second-page-error', modalElementId: 'second-modal-error' });
     }
 }
 
@@ -78,4 +76,20 @@ function displaysecondtable(initemsjson) {
             tableHTML += '</div>';
         });
         itemListnew.innerHTML += tableHTML;
+}
+
+// Generic error handler to show error text on the correct page element (second module variant)
+function handleError(err, options) {
+    const message = (err && err.message) ? err.message : String(err);
+    const scope = options && options.scope ? options.scope : 'page';
+    const pageId = (options && options.elementId) ? options.elementId : 'second-page-error';
+    const modalId = (options && options.modalElementId) ? options.modalElementId : 'second-modal-error';
+    if (scope === 'modal') {
+        const el = document.getElementById(modalId);
+        if (el) el.textContent = message;
+    } else {
+        const el = document.getElementById(pageId);
+        if (el) el.textContent = message;
+    }
+    console.error(message);
 }
