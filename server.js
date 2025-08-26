@@ -1,6 +1,10 @@
-const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+import express from 'express';
+import sqlite3 from 'sqlite3';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 9785;
@@ -14,10 +18,11 @@ const db = new sqlite3.Database('./products.db', (err) => {
 
 app.use(express.json());
 // these paths need to be set to use JS and CSS files internally within the Web App as well
+// the order of the paths is important, the first path is the one that will be used if the file is not found in the other paths
+app.use(express.static(path.join(__dirname, 'assets')));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'js')));
 app.use(express.static(path.join(__dirname, 'css')));
-app.use(express.static(path.join(__dirname, 'assets')));
 
 // REST APIs for the App
 // Start of Dynamic CRUD API - added by Cursor

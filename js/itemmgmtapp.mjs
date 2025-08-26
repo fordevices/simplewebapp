@@ -1,5 +1,11 @@
-// first have to bring all the HTML Controls' values in
-// Scraping HTML to both bring and send data back from Javascript for dynamic behavior
+// ES Module for dynamic item management
+import { 
+    handleError, 
+    validateForm, 
+    displayValidationErrors, 
+    clearValidationErrors, 
+    createFieldConfig 
+} from './validation.mjs';
 
 // Global state for dynamic form handling
 let currentTable = 'products';
@@ -49,9 +55,8 @@ async function displayallitems (tableName = 'products') {
 
 async function displayfiltereditems (tableName = 'products') {
     try {
-        searchtextentered = document.getElementById('searchtext');
+        const searchtextentered = document.getElementById('searchtext');
         const searchValue = searchtextentered.value.trim();
-        
         if (!searchValue) {
             // If no search term, just display all items
             displayallitems(tableName);
@@ -63,7 +68,7 @@ async function displayfiltereditems (tableName = 'products') {
         const filterresponse = await fetch(filterurl);
         if (!filterresponse.ok) {
             throw new Error(`HTTP error! status: ${filterresponse.status}`);
-        }
+          }
         const filtereditemsjson = await filterresponse.json();
 
         console.log('Filtered JSON from DB ');
@@ -82,7 +87,7 @@ async function displayfiltereditems (tableName = 'products') {
     } catch (error) {
         handleError(error, { scope: 'page' });
     }
-}
+  }
 
 // Add a new item to the database
 async function addItem() {
@@ -127,10 +132,10 @@ async function addItem() {
             // Update existing item
             console.log('Updating item with ID:', editedItemPkValue, 'payload:', payload);
             const response = await fetch(`/api/${encodeURIComponent(currentTable)}/${encodeURIComponent(editedItemPkValue)}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
                 body: JSON.stringify(payload)
             });
             
@@ -142,14 +147,11 @@ async function addItem() {
         }
         
         // Clear form and refresh display
-        resetForm();
+        resetForm(); 
         displayallitems(currentTable);
         
-        // Close modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById('addnewitemform'));
-        if (modal) {
-            modal.hide();
-        }
+        // Close modal properly
+        closeModal();
         
     } catch (error) {
         handleError(error, { scope: 'modal' });
@@ -178,8 +180,18 @@ async function editrow(rowIndex) {
         // Build dynamic form with current data
         await buildDynamicForm(rowData);
         
-        // Open modal
-        const modal = new bootstrap.Modal(document.getElementById('addnewitemform'));
+        // Get or create modal instance properly
+        const modalElement = document.getElementById('addnewitemform');
+        let modal = bootstrap.Modal.getInstance(modalElement);
+        
+        if (!modal) {
+            modal = new bootstrap.Modal(modalElement, {
+                backdrop: true,
+                keyboard: true,
+                focus: true
+            });
+        }
+        
         modal.show();
         
     } catch (error) {
@@ -241,24 +253,30 @@ async function deleterow(rowIndex) {
 function formValidation(){
     console.log("Form validation for dynamic form");
     
-    // Basic validation - check if at least one field has a value
-    let hasValidData = false;
+    // Gather form data
+    const formData = {};
     currentFormFields.forEach((element, fieldName) => {
-        if (element.value.trim()) {
-            hasValidData = true;
-        }
+        formData[fieldName] = element.value;
     });
     
-    if (!hasValidData) {
-        handleError(new Error('Please fill in at least one field'), { scope: 'modal' });
+    // Create field configuration for validation
+    if (!currentTableMeta) {
+        handleError(new Error('Table metadata not loaded'), { scope: 'modal' });
         return;
     }
     
-    // Clear any previous errors
-    const errorElement = document.getElementById('modal-error');
-    if (errorElement) {
-        errorElement.textContent = '';
+    const fieldConfig = createFieldConfig(currentTableMeta.columns, currentTableMeta.primaryKey);
+    
+    // Validate form
+    const validationResult = validateForm(formData, fieldConfig);
+    
+    if (!validationResult.isValid) {
+        displayValidationErrors(validationResult.errors, 'modal');
+        return;
     }
+    
+    // Clear validation errors if validation passes
+    clearValidationErrors('modal');
     
     // Submit the form
     try { 
@@ -278,12 +296,31 @@ function resetForm(){
     // Reset edit state
     editedItemPkValue = null;
     
-    // Clear error messages
-    const errorElement = document.getElementById('modal-error');
-    if (errorElement) {
-        errorElement.textContent = '';
-    }
+    // Clear validation errors
+    clearValidationErrors('modal');
 };
+
+// Helper function to properly close modal and clean up
+function closeModal() {
+    const modalElement = document.getElementById('addnewitemform');
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    
+    if (modal) {
+        modal.hide();
+    } else {
+        // Fallback cleanup
+        modalElement.classList.remove('show');
+        modalElement.style.display = 'none';
+        document.body.classList.remove('modal-open');
+        
+        // Remove all modal backdrops
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        
+        // Remove any padding that Bootstrap might have added
+        document.body.style.paddingRight = '';
+    }
+}
 
 // Helper function to find out if a given string is a number
 function isNumeric(str) {
@@ -300,9 +337,51 @@ function displaytable(initemsjson) {
     itemListnew.innerHTML = "";
     console.log("The JSON array to display " + initemsjson);
 
+    // Handle empty array case
+    if (!Array.isArray(initemsjson) || initemsjson.length === 0) {
+        // Create empty table with default headers
+        const tableContainer = createElement('div', { className: 'table' });
+        tableContainer.classList.add('few-rows');
+        
+        // Create header row with default columns
+        const headerRow = createElement('div', { className: 'row header-row' });
+        const defaultHeaders = ['Name', 'Price']; // Default headers
+        
+        defaultHeaders.forEach(header => {
+            const headerCell = createElement('span', { 
+                className: 'cell header-cell',
+                textContent: header 
+            });
+            headerRow.appendChild(headerCell);
+        });
+
+        // Add actions header
+        const actionsHeader = createElement('span', { className: 'options' });
+        const refreshIcon1 = createElement('i', { 
+            className: 'fa-solid fa-compress',
+            onclick: () => displayallitems()
+        });
+        const refreshIcon2 = createElement('i', { 
+            className: 'fa-solid fa-compress',
+            onclick: () => displayallitems()
+        });
+        actionsHeader.appendChild(refreshIcon1);
+        actionsHeader.appendChild(refreshIcon2);
+        headerRow.appendChild(actionsHeader);
+        
+        tableContainer.appendChild(headerRow);
+        itemListnew.appendChild(tableContainer);
+        return;
+    }
+
     // Create main table container
     const tableContainer = createElement('div', { className: 'table' });
-
+    
+    // Add class for few rows to ensure top alignment
+    if (initemsjson.length <= 2) {
+        tableContainer.classList.add('few-rows');
+    }
+  
     // Create table header row
     console.log("just before object keys thing");
     const headers = Object.keys(initemsjson[0]);
@@ -331,8 +410,8 @@ function displaytable(initemsjson) {
     actionsHeader.appendChild(refreshIcon1);
     actionsHeader.appendChild(refreshIcon2);
     headerRow.appendChild(actionsHeader);
-    console.log("Header created");
-
+        console.log("Header created");
+    
     tableContainer.appendChild(headerRow);
 
     // Create table data rows
@@ -340,7 +419,7 @@ function displaytable(initemsjson) {
         const dataRow = createElement('div', { className: 'row' });
 
         // Add data cells
-        headers.forEach(header => {
+            headers.forEach(header => {
             const dataCell = createElement('span', { 
                 className: 'cell',
                 textContent: item[header] || ''
@@ -353,11 +432,7 @@ function displaytable(initemsjson) {
         
         const editIcon = createElement('i', { 
             className: 'fas fa-edit',
-            onclick: () => editrow(index),
-            dataset: { 
-                bsToggle: 'modal', 
-                bsTarget: '#addnewitemform' 
-            }
+            onclick: () => editrow(index)
         });
         
         const deleteIcon = createElement('i', { 
@@ -508,20 +583,48 @@ document.addEventListener('DOMContentLoaded', () => {
             await buildDynamicForm();
         });
     }
+    
+    // Ensure proper modal event handling
+    const modalElement = document.getElementById('addnewitemform');
+    if (modalElement) {
+        // Handle modal hidden event to clean up
+        modalElement.addEventListener('hidden.bs.modal', () => {
+            resetForm();
+            // Ensure backdrop is removed
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) {
+                backdrop.remove();
+            }
+            document.body.classList.remove('modal-open');
+            // Remove any remaining modal-open class
+            document.body.classList.remove('modal-open');
+        });
+        
+        // Handle modal shown event to ensure proper focus
+        modalElement.addEventListener('shown.bs.modal', () => {
+            // Focus on first input field
+            const firstInput = modalElement.querySelector('input');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        });
+    }
 });
 
 // --------END OF FUNCTION DEFINITIONS -----------
 
-// Generic error handler to show error text on the correct page element
-function handleError(err, options) {
-    const message = (err && err.message) ? err.message : String(err);
-    const scope = options && options.scope ? options.scope : 'page';
-    if (scope === 'modal') {
-        const el = document.getElementById('modal-error');
-        if (el) el.textContent = message;
-    } else {
-        const el = document.getElementById('page-error');
-        if (el) el.textContent = message;
-    }
-    console.error(message);
-}
+// Export functions for use in other modules
+export {
+    displayallitems,
+    displayfiltereditems,
+    addItem,
+    editrow,
+    deleterow,
+    formValidation,
+    resetForm,
+    closeModal,
+    displaytable,
+    createElement,
+    loadTableMeta,
+    buildDynamicForm
+};

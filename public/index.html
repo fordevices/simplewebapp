@@ -1,127 +1,191 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Local Item Management Tool</title>     
-        <link rel="stylesheet" href="style.css">
-        <link rel="stylesheet" href="bootstrap-5.2.3-dist/css/bootstrap.min.css">
-        <link rel="stylesheet" href="fontawesome-free-6.7.2-web/css/all.min.css">
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-
-    <body>
-        <!-- Main Display Area -->
-        <!-- navbar code -->
-        <nav class="navbar navbar-expand-lg fixed-top" style="background-color: #e3f2fd;">
-          <div class="container-fluid">
-            <a class="navbar-brand" href="#">Item Management</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor03" aria-controls="navbarColor03" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Management System</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-boxes me-2"></i>
+                Item Management
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarColor03">
-              <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="index.html">Home</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/second">Features</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">Pricing</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">About</a>
-                </li>
-                <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Reports
-                  </a>
-                  <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">Show Report 1</a></li>
-                    <li><a class="dropdown-item" href="#">Show Report 2</a></li>
-                    <li><a class="dropdown-item" href="#">Show Report 3</a></li>
-                  </ul>
-                </li>
-              </ul>
-              <form class="d-flex" role="search" id="searchform">
-                <input class="form-control me-2"  id="searchtext" type="search" placeholder="Search Items ..." aria-label="Search">
-                <button class="btn btn-outline-primary" type="submit">Search</button>
-              </form>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/second">
+                            <i class="fas fa-chart-bar me-1"></i>Reports
+                        </a>
+                    </li>
+                </ul>
+                
+                <!-- Search Form -->
+                <form class="d-flex" id="searchform">
+                    <div class="input-group">
+                        <input class="form-control" type="search" id="searchtext" placeholder="Search items..." aria-label="Search">
+                        <button class="btn btn-outline-light" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
             </div>
-          </div>
-        </nav>
-        <!-- navbar code -->
-        <div class="itemmgmtapp">
-            <!-- <h4 class="mb-3">Items Management</h4> -->          
-            <div id="addNew" data-bs-toggle="modal" data-bs-target="#addnewitemform">
-                <span>Add New Item</span>
-                <i class="fas fa-plus"></i>
-            </div>
-            <div id="item-list-div"></div>
         </div>
-        
-        <!-- Add New Item Modal Form -->
-        <form
-            class="modal fade"
-            id="addnewitemform"
-            tabindex="-1"
-            aria-labelledby="Add New Item"
-            aria-hidden="true">
+    </nav>
 
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="Add New Item">Enter Item Details</h5>
-                        <button
-                            type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                            aria-label="Close">
-                        </button>
-                    </div>
-
-                    <div class="modal-body">
-                        <p>Item Name</p>
-                        <input type="text" class="form-control" name="" id="itemnameinput" />
-                        <div id="nameerrormsg"></div>
-                        <br />
-                        <p>Price</p>
-                        <input type="text" class="form-control" name="" id="itempriceinput" />
-                        <div id="priceerrormsg"></div>
-                        <p id="modal-error" class="text-danger small mt-2" role="alert" aria-live="polite"></p>
-                    </div>
-                        
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            Close
-                        </button>
-                        <button type="submit" id="add" class="btn btn-primary">
-                            Save
-                        </button>
+    <!-- Main Content -->
+    <div class="container-fluid mt-5 pt-3">
+        <div class="row">
+            <div class="col-12">
+                <!-- Add New Item Button -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Items List
+                    </h4>
+                    <button class="btn btn-success" id="addNew" data-bs-toggle="modal" data-bs-target="#addnewitemform">
+                        <i class="fas fa-plus me-2"></i>Add New Item
+                    </button>
+                </div>
+                
+                <!-- Items Table Container -->
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div id="item-list-div"></div>
                     </div>
                 </div>
             </div>
-        </form>
-        <p id="page-error" class="text-danger small mt-3 container" role="alert" aria-live="polite"></p>
-    <script src="bootstrap-5.2.3-dist/js/bootstrap.bundle.min.js"></script>
-    <!--  Client side business/rendering logic-->
-    <script src="itemmgmtapp.js"></script>
-    <script>
-        // add the submit event to the Add new item Form
-        // this Javascript code to add listener is a better fit here
-        addnewitemform.addEventListener("submit", (e) => {
-                                e.preventDefault();
-                                formValidation();}
-                                );
-        // CONTINUE TO WORK FROM HERE
-        searchform.addEventListener("submit", (e) => {
-                                e.preventDefault();
-                                displayfiltereditems();}
-                                );
+        </div>
+    </div>
 
-        // during load display all the items
+    <!-- Error Message Bar -->
+    <div id="page-error" class="alert alert-danger alert-dismissible fade position-fixed bottom-0 start-0 w-100 m-0" role="alert" style="display: none; z-index: 1050;">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span id="error-message"></span>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add New Item Modal -->
+    <div class="modal fade" id="addnewitemform" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addItemModalLabel">
+                        <i class="fas fa-plus-circle me-2"></i>Add New Item
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <form id="addItemForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="itemnameinput" class="form-label">
+                                <i class="fas fa-tag me-1"></i>Item Name
+                            </label>
+                            <input type="text" class="form-control" id="itemnameinput" required>
+                            <div id="nameerrormsg" class="invalid-feedback"></div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="itempriceinput" class="form-label">
+                                <i class="fas fa-dollar-sign me-1"></i>Price
+                            </label>
+                            <input type="text" class="form-control" id="itempriceinput" required>
+                            <div id="priceerrormsg" class="invalid-feedback"></div>
+                        </div>
+                        
+                        <div id="modal-error" class="alert alert-danger" style="display: none;"></div>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Save Item
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Application Scripts -->
+    <script type="module" src="itemmgmtapp.mjs"></script>
+    <script type="module">
+        import { 
+            formValidation, 
+            displayfiltereditems, 
+            displayallitems 
+        } from './itemmgmtapp.mjs';
+        
+        // Add new item form submission
+        document.getElementById('addItemForm').addEventListener("submit", (e) => {
+            e.preventDefault();
+            formValidation();
+        });
+        
+        // Search form submission
+        document.getElementById('searchform').addEventListener("submit", (e) => {
+            e.preventDefault();
+            displayfiltereditems();
+        });
+
+        // Error message handling
+        const errorAlert = document.getElementById('page-error');
+        const errorMessage = document.getElementById('error-message');
+        
+        // Function to show error message
+        window.showError = function(message) {
+            errorMessage.textContent = message;
+            errorAlert.style.display = 'block';
+            errorAlert.classList.add('show');
+        };
+        
+        // Function to hide error message
+        window.hideError = function() {
+            errorAlert.classList.remove('show');
+            setTimeout(() => {
+                errorAlert.style.display = 'none';
+            }, 300);
+        };
+        
+        // Auto-hide error after 5 seconds
+        errorAlert.addEventListener('shown.bs.alert', function() {
+            setTimeout(() => {
+                hideError();
+            }, 5000);
+        });
+
+        // Initialize the application
         displayallitems();
     </script>
-    </body>
+</body>
 </html>

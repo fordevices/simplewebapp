@@ -1,3 +1,6 @@
+// ES Module for second module functionality
+import { handleError } from './validation.mjs';
+
 // --------BEGIN CLIENT SIDE JAVASCRIPT FUNCTION DEFINITIONS -----------
 // function will display items in a table
 // Source of data is the "global" variable allitemsjson
@@ -44,7 +47,9 @@ function displaysecondtable(initemsjson) {
     let tableHTML = '';
     //console.log("value of initemsjson.length : " + Object.keys(initemsjson).length());
     console.log("The JSON array to display " + initemsjson);
-    tableHTML += '<div class="table">';
+    // Add class for few rows to ensure top alignment
+    const tableClass = initemsjson.length <= 2 ? 'table few-rows' : 'table';
+    tableHTML += `<div class="${tableClass}">`;
   
      // Create table header row
      console.log("just before object keys thing");
@@ -55,7 +60,7 @@ function displaysecondtable(initemsjson) {
             tableHTML += `<span class="cell header-cell">${header}</span>`;
         });
         tableHTML += 
-                `<span class=options">
+                `<span class="options">
                     <i onClick= "displayallitems()" class="fa-solid fa-compress"></i>
                     <i onClick ="displayallitems()" class="fa-solid fa-compress"></i>
                 </span>`;
@@ -69,7 +74,7 @@ function displaysecondtable(initemsjson) {
                 tableHTML += `<span class="cell">${item[header]}</span>`;
             });
             tableHTML += 
-                `<span class=options">
+                `<span class="options">
                     <i onClick= "editrow(this)" data-bs-toggle="modal" data-bs-target="#addnewitemform" class="fas fa-edit"></i>
                     <i onClick ="deleterow(this)" class="fas fa-trash-alt"></i>
                 </span>`;
@@ -78,18 +83,8 @@ function displaysecondtable(initemsjson) {
         itemListnew.innerHTML += tableHTML;
 }
 
-// Generic error handler to show error text on the correct page element (second module variant)
-function handleError(err, options) {
-    const message = (err && err.message) ? err.message : String(err);
-    const scope = options && options.scope ? options.scope : 'page';
-    const pageId = (options && options.elementId) ? options.elementId : 'second-page-error';
-    const modalId = (options && options.modalElementId) ? options.modalElementId : 'second-modal-error';
-    if (scope === 'modal') {
-        const el = document.getElementById(modalId);
-        if (el) el.textContent = message;
-    } else {
-        const el = document.getElementById(pageId);
-        if (el) el.textContent = message;
-    }
-    console.error(message);
-}
+// Export functions for use in other modules
+export {
+    displaysecondmodule,
+    displaysecondtable
+};
