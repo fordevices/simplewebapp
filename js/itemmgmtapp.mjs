@@ -180,19 +180,27 @@ async function editrow(rowIndex) {
         // Build dynamic form with current data
         await buildDynamicForm(rowData);
         
-        // Get or create modal instance properly
+        // Get or create modal instance properly (safe bootstrap reference)
         const modalElement = document.getElementById('addnewitemform');
-        let modal = bootstrap.Modal.getInstance(modalElement);
+        const bs = window.bootstrap || undefined;
+        let modal = bs && bs.Modal ? bs.Modal.getInstance(modalElement) : null;
         
-        if (!modal) {
-            modal = new bootstrap.Modal(modalElement, {
+        if (!modal && bs && bs.Modal) {
+            modal = new bs.Modal(modalElement, {
                 backdrop: true,
                 keyboard: true,
                 focus: true
             });
         }
         
-        modal.show();
+        if (modal && typeof modal.show === 'function') {
+            modal.show();
+        } else {
+            // Minimal fallback to display modal if bootstrap JS is unavailable
+            modalElement.classList.add('show');
+            modalElement.style.display = 'block';
+            document.body.classList.add('modal-open');
+        }
         
     } catch (error) {
         handleError(error, { scope: 'page' });
@@ -303,7 +311,8 @@ function resetForm(){
 // Helper function to properly close modal and clean up
 function closeModal() {
     const modalElement = document.getElementById('addnewitemform');
-    const modal = bootstrap.Modal.getInstance(modalElement);
+    const bs = window.bootstrap || undefined;
+    const modal = bs && bs.Modal ? bs.Modal.getInstance(modalElement) : null;
     
     if (modal) {
         modal.hide();
