@@ -86,6 +86,65 @@ export function validateText(value, fieldName) {
 }
 
 /**
+ * Check if a field is a valid decimal number
+ * @param {string|number} value - The field value to check
+ * @param {string} fieldName - Name of the field for error messages
+ * @returns {boolean} - True if valid, throws ValidationError if invalid
+ */
+export function validateDecimal(value, fieldName) {
+  if (value && value.toString().trim() !== '') {
+    const decimalValue = parseFloat(value);
+    if (isNaN(decimalValue)) {
+      throw new ValidationError(`${fieldName} must be a valid decimal number`, fieldName);
+    }
+    // Check if it's a finite number (not Infinity)
+    if (!isFinite(decimalValue)) {
+      throw new ValidationError(`${fieldName} must be a finite decimal number`, fieldName);
+    }
+  }
+  return true;
+}
+
+/**
+ * Check if a field is a valid date
+ * @param {string} value - The field value to check
+ * @param {string} fieldName - Name of the field for error messages
+ * @returns {boolean} - True if valid, throws ValidationError if invalid
+ */
+export function validateDate(value, fieldName) {
+  if (value && value.toString().trim() !== '') {
+    const dateValue = new Date(value);
+    if (isNaN(dateValue.getTime())) {
+      throw new ValidationError(`${fieldName} must be a valid date (YYYY-MM-DD format)`, fieldName);
+    }
+    // Check if the date is reasonable (not too far in the past or future)
+    const now = new Date();
+    const year = dateValue.getFullYear();
+    const currentYear = now.getFullYear();
+    if (year < 1900 || year > currentYear + 100) {
+      throw new ValidationError(`${fieldName} must be a reasonable date (between 1900 and ${currentYear + 100})`, fieldName);
+    }
+  }
+  return true;
+}
+
+/**
+ * Check if a field is a valid time in 24-hour format
+ * @param {string} value - The field value to check
+ * @param {string} fieldName - Name of the field for error messages
+ * @returns {boolean} - True if valid, throws ValidationError if invalid
+ */
+export function validateTime(value, fieldName) {
+  if (value && value.toString().trim() !== '') {
+    const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timeRegex.test(value.trim())) {
+      throw new ValidationError(`${fieldName} must be a valid time in 24-hour format (HH:MM)`, fieldName);
+    }
+  }
+  return true;
+}
+
+/**
  * Validate a form field based on its type and requirements
  * @param {string} value - The field value
  * @param {string} fieldName - Name of the field
@@ -115,6 +174,15 @@ export function validateField(value, fieldName, options = {}) {
           break;
         case 'integer':
           validateInteger(value, fieldName);
+          break;
+        case 'decimal':
+          validateDecimal(value, fieldName);
+          break;
+        case 'date':
+          validateDate(value, fieldName);
+          break;
+        case 'time':
+          validateTime(value, fieldName);
           break;
         case 'text':
         default:
@@ -173,35 +241,39 @@ export function validateForm(formData, fieldConfigs) {
  * @param {string} scope - 'modal' or 'page'
  */
 export function displayValidationErrors(errors, scope = 'modal') {
-  // Clear previous errors
-  clearValidationErrors(scope);
-  
-  if (errors.length === 0) return;
-  
-  // Group errors by field
-  const fieldErrors = {};
-  errors.forEach(error => {
-    if (!fieldErrors[error.field]) {
-      fieldErrors[error.field] = [];
+  try {
+    // Clear previous errors
+    clearValidationErrors(scope);
+    
+    if (errors.length === 0) return;
+    
+    // Group errors by field
+    const fieldErrors = {};
+    errors.forEach(error => {
+      if (!fieldErrors[error.field]) {
+        fieldErrors[error.field] = [];
+      }
+      fieldErrors[error.field].push(error.message);
+    });
+    
+    // Display field-specific errors
+    Object.entries(fieldErrors).forEach(([fieldName, messages]) => {
+      const errorElement = document.getElementById(`err-${fieldName}`);
+      if (errorElement) {
+        errorElement.innerHTML = messages.join('<br>');
+        errorElement.style.color = 'red';
+        errorElement.style.fontSize = '0.875rem';
+      }
+    });
+    
+    // Display general error message
+    const generalErrorId = scope === 'modal' ? 'modal-error' : 'page-error';
+    const generalErrorElement = document.getElementById(generalErrorId);
+    if (generalErrorElement) {
+      generalErrorElement.textContent = `Please fix ${errors.length} validation error(s)`;
     }
-    fieldErrors[error.field].push(error.message);
-  });
-  
-  // Display field-specific errors
-  Object.entries(fieldErrors).forEach(([fieldName, messages]) => {
-    const errorElement = document.getElementById(`err-${fieldName}`);
-    if (errorElement) {
-      errorElement.innerHTML = messages.join('<br>');
-      errorElement.style.color = 'red';
-      errorElement.style.fontSize = '0.875rem';
-    }
-  });
-  
-  // Display general error message
-  const generalErrorId = scope === 'modal' ? 'modal-error' : 'page-error';
-  const generalErrorElement = document.getElementById(generalErrorId);
-  if (generalErrorElement) {
-    generalErrorElement.textContent = `Please fix ${errors.length} validation error(s)`;
+  } catch (error) {
+    console.error('Error displaying validation errors:', error);
   }
 }
 
@@ -210,21 +282,25 @@ export function displayValidationErrors(errors, scope = 'modal') {
  * @param {string} scope - 'modal' or 'page'
  */
 export function clearValidationErrors(scope = 'modal') {
-  // Clear field-specific errors
-  const errorElements = document.querySelectorAll('[id^="err-"]');
-  errorElements.forEach(element => {
-    element.innerHTML = '';
-  });
-  
-  // Clear general error message
-  const generalErrorId = scope === 'modal' ? 'modal-error' : 'page-error';
-  const generalErrorElement = document.getElementById(generalErrorId);
-  if (generalErrorElement) {
-    generalErrorElement.textContent = '';
-    // Hide page error strip with animation
-    if (scope === 'page' && generalErrorElement.classList.contains('page-error-strip')) {
-      generalErrorElement.style.transform = 'translateY(100%)';
+  try {
+    // Clear field-specific errors
+    const errorElements = document.querySelectorAll('[id^="err-"]');
+    errorElements.forEach(element => {
+      element.innerHTML = '';
+    });
+    
+    // Clear general error message
+    const generalErrorId = scope === 'modal' ? 'modal-error' : 'page-error';
+    const generalErrorElement = document.getElementById(generalErrorId);
+    if (generalErrorElement) {
+      generalErrorElement.textContent = '';
+      // Hide page error strip with animation
+      if (scope === 'page' && generalErrorElement.classList.contains('page-error-strip')) {
+        generalErrorElement.style.transform = 'translateY(100%)';
+      }
     }
+  } catch (error) {
+    console.error('Error clearing validation errors:', error);
   }
 }
 
@@ -237,32 +313,36 @@ export function clearValidationErrors(scope = 'modal') {
  * @param {string} options.modalElementId - Custom element ID for modal errors
  */
 export function handleError(err, options = {}) {
-  const message = (err && err.message) ? err.message : String(err);
-  const scope = options.scope || 'page';
-  const pageId = options.elementId || 'page-error';
-  const modalId = options.modalElementId || 'modal-error';
-  
-  if (scope === 'modal') {
-    const el = document.getElementById(modalId);
-    if (el) {
-      el.textContent = message;
-      el.style.display = 'block';
-    }
-  } else {
-    // Use the new error message system
-    if (typeof window.showError === 'function') {
-      window.showError(message);
-    } else {
-      // Fallback to old system
-      const el = document.getElementById(pageId);
+  try {
+    const message = (err && err.message) ? err.message : String(err);
+    const scope = options.scope || 'page';
+    const pageId = options.elementId || 'page-error';
+    const modalId = options.modalElementId || 'modal-error';
+    
+    if (scope === 'modal') {
+      const el = document.getElementById(modalId);
       if (el) {
         el.textContent = message;
         el.style.display = 'block';
       }
+    } else {
+      // Use the new error message system
+      if (typeof window.showError === 'function') {
+        window.showError(message);
+      } else {
+        // Fallback to old system
+        const el = document.getElementById(pageId);
+        if (el) {
+          el.textContent = message;
+          el.style.display = 'block';
+        }
+      }
     }
+    
+    console.error(message);
+  } catch (error) {
+    console.error('Error in handleError function:', error);
   }
-  
-  console.error(message);
 }
 
 /**
@@ -277,9 +357,25 @@ export function inferFieldType(fieldName) {
     return 'email';
   }
   
+  if (name.includes('date') || name.includes('deadline') || name.includes('target_date') || 
+      name.includes('createdon') || name.includes('modifiedon')) {
+    return 'date';
+  }
+  
+  if (name.includes('time') || name.includes('timestamp') || name.includes('createdat') || 
+      name.includes('updatedat')) {
+    return 'time';
+  }
+  
   if (name.includes('id') || name.includes('count') || name.includes('number') || 
-      name.includes('price') || name.includes('amount') || name.includes('quantity')) {
+      name.includes('amount') || name.includes('quantity')) {
     return 'number';
+  }
+  
+  if (name.includes('progress') || name.includes('percentage') || name.includes('score') ||
+      name.includes('metric') || name.includes('value') || name.includes('rate') || 
+      name.includes('ratio')) {
+    return 'decimal';
   }
   
   return 'text';
@@ -289,14 +385,15 @@ export function inferFieldType(fieldName) {
  * Create field configuration for validation
  * @param {Array} columns - Array of column names
  * @param {string} primaryKey - Primary key column name
+ * @param {Function} [customFieldTypeInference] - Custom field type inference function
  * @returns {Object} - Field configuration object
  */
-export function createFieldConfig(columns, primaryKey) {
+export function createFieldConfig(columns, primaryKey, customFieldTypeInference = null) {
   const config = {};
   
   columns.forEach(column => {
     const isPrimaryKey = column === primaryKey;
-    const fieldType = inferFieldType(column);
+    const fieldType = customFieldTypeInference ? customFieldTypeInference(column) : inferFieldType(column);
     
     config[column] = {
       required: !isPrimaryKey, // Primary key fields are usually auto-generated
@@ -306,4 +403,51 @@ export function createFieldConfig(columns, primaryKey) {
   });
   
   return config;
+}
+
+/**
+ * Generic form validation and submission handler
+ * @param {Map} formFields - Map of field names to DOM elements
+ * @param {Object} tableMeta - Table metadata containing columns and primaryKey
+ * @param {Function} submissionCallback - Function to call if validation passes
+ * @param {string} scope - Error display scope ('modal' or 'page')
+ * @param {Function} [customFieldTypeInference] - Custom field type inference function
+ * @returns {Promise<boolean>} - True if validation passed and submission was attempted
+ */
+export async function validateAndSubmitForm(formFields, tableMeta, submissionCallback, scope = 'modal', customFieldTypeInference = null) {
+  try {
+    // Validate table metadata
+    if (!tableMeta) {
+      handleError(new Error('Table metadata not loaded'), { scope });
+      return false;
+    }
+    
+    // Gather form data
+    const formData = {};
+    formFields.forEach((element, fieldName) => {
+      formData[fieldName] = element.value;
+    });
+    
+    // Create field configuration for validation
+    const fieldConfig = createFieldConfig(tableMeta.columns, tableMeta.primaryKey, customFieldTypeInference);
+    
+    // Validate form
+    const validationResult = validateForm(formData, fieldConfig);
+    
+    if (!validationResult.isValid) {
+      displayValidationErrors(validationResult.errors, scope);
+      return false;
+    }
+    
+    // Clear validation errors if validation passes
+    clearValidationErrors(scope);
+    
+    // Submit the form
+    await submissionCallback();
+    return true;
+    
+  } catch (error) {
+    handleError(error, { scope });
+    return false;
+  }
 }

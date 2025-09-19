@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Item Management System</title>
+    <title>OKR Management System</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="kirahi-logo.png">
@@ -21,8 +21,8 @@
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="#">
                 <img src="kirahi-logo.png" alt="Kirahi Logo" class="me-2" style="width: 48px; height: 48px; object-fit: contain;">
-                <i class="fas fa-boxes me-2"></i>
-                Item Management
+                <i class="fas fa-target me-2"></i>
+                OKR Management
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -32,12 +32,12 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">
+                        <a class="nav-link" href="index.html">
                             <i class="fas fa-boxes me-1"></i>Items
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="okr.html">
+                        <a class="nav-link active" href="#">
                             <i class="fas fa-target me-1"></i>OKRs
                         </a>
                     </li>
@@ -46,7 +46,7 @@
                 <!-- Search Form -->
                 <form class="d-flex" id="searchform">
                     <div class="input-group">
-                        <input class="form-control" type="search" id="searchtext" placeholder="Search items..." aria-label="Search">
+                        <input class="form-control" type="search" id="searchtext" placeholder="Search OKRs..." aria-label="Search">
                         <button class="btn btn-outline-light" type="submit">
                             <i class="fas fa-search"></i>
                         </button>
@@ -60,17 +60,17 @@
     <div class="container-fluid" style="margin-top: 80px; padding-top: 20px;">
         <div class="row">
             <div class="col-12">
-                <!-- Add New Item Button -->
+                <!-- Add New OKR Button -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="mb-0">
-                        <i class="fas fa-list me-2"></i>Items List
+                        <i class="fas fa-list me-2"></i>OKRs List
                     </h4>
                     <button class="btn btn-success" id="addNew" data-bs-toggle="modal" data-bs-target="#addnewitemform">
-                        <i class="fas fa-plus me-2"></i>Add New Item
+                        <i class="fas fa-plus me-2"></i>Add New OKR
                     </button>
                 </div>
                 
-                <!-- Items Table Container -->
+                <!-- OKRs Table Container -->
                 <div class="card">
                     <div class="card-body p-0">
                         <div id="item-list-div"></div>
@@ -93,37 +93,21 @@
         </div>
     </div>
 
-    <!-- Add New Item Modal -->
+    <!-- Add New OKR Modal -->
     <div class="modal fade" id="addnewitemform" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title d-flex align-items-center" id="addItemModalLabel">
                         <img src="kirahi-logo.png" alt="Kirahi Logo" class="me-2" style="width: 36px; height: 36px; object-fit: contain;">
-                        <i class="fas fa-plus-circle me-2"></i>Add New Item
+                        <i class="fas fa-plus-circle me-2"></i>Add New OKR
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 
                 <form id="addItemForm">
                     <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="itemnameinput" class="form-label">
-                                <i class="fas fa-tag me-1"></i>Item Name
-                            </label>
-                            <input type="text" class="form-control" id="itemnameinput" required>
-                            <div id="nameerrormsg" class="invalid-feedback"></div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="itempriceinput" class="form-label">
-                                <i class="fas fa-dollar-sign me-1"></i>Price
-                            </label>
-                            <input type="text" class="form-control" id="itempriceinput" required>
-                            <div id="priceerrormsg" class="invalid-feedback"></div>
-                        </div>
-                        
-                        <div id="modal-error" class="alert alert-danger" style="display: none;"></div>
+                        <!-- Dynamic form fields will be generated here -->
                     </div>
                     
                     <div class="modal-footer">
@@ -131,7 +115,7 @@
                             <i class="fas fa-times me-1"></i>Cancel
                         </button>
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-1"></i>Save Item
+                            <i class="fas fa-save me-1"></i>Save OKR
                         </button>
                     </div>
                 </form>
@@ -143,15 +127,15 @@
     <script src="bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Application Scripts -->
-    <script type="module" src="itemmgmtapp.mjs"></script>
+    <script type="module" src="../js/okrmgmtapp.mjs"></script>
     <script type="module">
         import { 
             handleFormSubmission, 
             displayfiltereditems, 
             displayallitems 
-        } from './itemmgmtapp.mjs';
+        } from '../js/okrmgmtapp.mjs';
         
-        // Add new item form submission
+        // Add new OKR form submission
         document.getElementById('addItemForm').addEventListener("submit", (e) => {
             e.preventDefault();
             handleFormSubmission();
@@ -189,7 +173,7 @@
             }, 5000);
         });
 
-        // Initialize the application by displaying all records in the db for the table
+        // Initialize the application by displaying all records in the db for the OKR table
         displayallitems();
     </script>
 </body>

@@ -1,8 +1,8 @@
-// ES Module for item management - Products Table in the database
-// this is the only MJS file that will be imported into the index.html file
+// ES Module for OKR management - OKR Table in the database
+// this is the only MJS file that will be imported into the okr.html file
 // all the other MJS files will be imported into this file
 // to change the table, you need to change the currentTable variable
-// the only function that has any hardcoded table / col references is inferProductFieldType
+// the only function that has any hardcoded table / col references is inferOKRFieldType
 // not trying to further split the code, because we need to maintain State in one place
 // otherwise performance will be impaceted with several copies of the data in memory
 
@@ -25,7 +25,7 @@ import {
 } from './htmlhelpers.mjs';
 
 // Global state for dynamic form handling
-let currentTable = 'products';
+let currentTable = 'okr';
 let currentRows = [];
 let editedItemPkValue = null;
 // Global state for HTML rendering (moved from htmlhelpers.mjs)
@@ -33,38 +33,57 @@ let currentTableMeta = null;
 let currentFormFields = new Map(); // Maps field names to their DOM elements
 
 /**
- * Custom field type inference for products table
- * Extends the generic inference with product-specific field types
+ * Custom field type inference for OKR table
+ * Extends the generic inference with OKR-specific field types
  * @param {string} fieldName - The field name
  * @returns {string} - The inferred field type
  */
-function inferProductFieldType(fieldName) {
+function inferOKRFieldType(fieldName) {
     const name = fieldName.toLowerCase();
     
-    // Product-specific field type inference
-    if (name.includes('price')) {
-        return 'number';
+    // Unit field detection - custom business logic for OKRs
+    if (name.includes('unit')) {
+        return 'unit';
+    }
+    
+    // Date field detection
+    if (name.includes('date') || name.includes('deadline') || name.includes('target_date') || 
+        name.includes('createdon') || name.includes('modifiedon')) {
+        return 'date';
+    }
+    
+    // Time field detection
+    if (name.includes('time') || name.includes('timestamp') || name.includes('createdat') || 
+        name.includes('updatedat')) {
+        return 'time';
+    }
+    
+    // Decimal/REAL field detection
+    if (name.includes('progress') || name.includes('percentage') || name.includes('score') ||
+        name.includes('metric') || name.includes('amount') || name.includes('value') ||
+        name.includes('rate') || name.includes('ratio')) {
+        return 'decimal';
     }
     
     // Use generic inference for other fields
     return inferFieldType(fieldName);
 }
 
-// by default get all the items from the database during initial load and put it in the memory
+// by default get all the OKRs from the database during initial load and put it in the memory
 // do not do this if you expect a large database
 // this is a case where we do not expect more than 5000 rows at the end of life
 // another risk is to keep this updated all the time, the app will perform CRUD
 
 // --------BEGIN CLIENT SIDE JAVASCRIPT FUNCTION DEFINITIONS -----------
-// function will display items in a table
-// Source of data is the "global" variable allitemsjson
+// function will display OKRs in a table
+// Source of data is the "global" variable allokrsjson
 
 /**
- * Displays all items from the specified table in a data table
- * @param {string} [tableName='products'] - Name of the table to display items from
- * @throws {Error} If fetching or displaying items fails
+ * Displays all OKRs from the specified table in a data table
+ * @param {string} [tableName='okr'] - Name of the table to display OKRs from
+ * @throws {Error} If fetching or displaying OKRs fails
  */
-async function displayallitems (tableName = 'products') {
+async function displayallitems (tableName = 'okr') {
     try {
         // Use the generic CRUD function from restcallsfordbdata.mjs
         // this is fetched once for all further interactions till another dtabase transaction
@@ -74,31 +93,31 @@ async function displayallitems (tableName = 'products') {
         // another risk is to keep this updated all the time, the app will perform CRUD
         // on the database every time the app is loaded
         // this is a case where we do not expect more than 5000 rows at the end of life
-        const allitemsjson = await fetchAllRows(tableName);
+        const allokrsjson = await fetchAllRows(tableName);
 
-        console.log('All Items JSON from DB:', allitemsjson?.length || 0, 'items');
+        console.log('All OKRs JSON from DB:', allokrsjson?.length || 0, 'OKRs');
 
-        if (!Array.isArray(allitemsjson) || allitemsjson.length === 0) {
+        if (!Array.isArray(allokrsjson) || allokrsjson.length === 0) {
             console.log('No data returned from database');
             currentRows = [];
             displaytable([]);
             return;
         }
-        currentRows = allitemsjson;
-        displaytable(allitemsjson, prepareEditForm, deleterow, () => displayallitems(currentTable));
+        currentRows = allokrsjson;
+        displaytable(allokrsjson, prepareEditForm, deleterow, () => displayallitems(currentTable));
     } catch (error) {
-        console.error('Error displaying all items:', error);
+        console.error('Error displaying all OKRs:', error);
         handleError(error, { scope: 'page' });
     }
 }
 
 /**
- * Displays filtered items from the specified table based on search criteria
+ * Displays filtered OKRs from the specified table based on search criteria
  * not optimizing further because for more complex apps this may get complex
- * @param {string} [tableName='products'] - Name of the table to search in
- * @throws {Error} If searching or displaying filtered items fails
+ * @param {string} [tableName='okr'] - Name of the table to search in
+ * @throws {Error} If searching or displaying filtered OKRs fails
  */
-async function displayfiltereditems (tableName = 'products') {
+async function displayfiltereditems (tableName = 'okr') {
     try {
         const searchtextentered = document.getElementById('searchtext');
         if (!searchtextentered) {
@@ -107,28 +126,28 @@ async function displayfiltereditems (tableName = 'products') {
         
         const searchValue = searchtextentered.value.trim();
         if (!searchValue) {
-            // If no search term, just display all items
+            // If no search term, just display all OKRs
             displayallitems(tableName);
             return;
         }
         
         // Use the generic search function from restcallsfordbdata.mjs
-        const filtereditemsjson = await fetchFilteredRows(tableName, searchValue);
+        const filteredokrsjson = await fetchFilteredRows(tableName, searchValue);
 
-        console.log('Filtered JSON from DB:', filtereditemsjson?.length || 0, 'items');
+        console.log('Filtered JSON from DB:', filteredokrsjson?.length || 0, 'OKRs');
 
-        if (!Array.isArray(filtereditemsjson) || filtereditemsjson.length === 0) {
+        if (!Array.isArray(filteredokrsjson) || filteredokrsjson.length === 0) {
             console.log('No matching results found');
             currentRows = [];
             displaytable([]);
             return;
         }
-        currentRows = filtereditemsjson;
+        currentRows = filteredokrsjson;
         console.log('Filtered data converted to JSON Successfully');
-        displaytable(filtereditemsjson, prepareEditForm, deleterow, () => displayallitems(currentTable));
+        displaytable(filteredokrsjson, prepareEditForm, deleterow, () => displayallitems(currentTable));
 
     } catch (error) {
-        console.error('Error displaying filtered items:', error);
+        console.error('Error displaying filtered OKRs:', error);
         handleError(error, { scope: 'page' });
     }
 }
@@ -163,15 +182,15 @@ async function saveRow() {
         
         // Determine if this is a create or update operation
         if (editedItemPkValue === null || editedItemPkValue === undefined || editedItemPkValue === '') {
-            // Create new item
-            console.log('Creating new item with payload:', payload);
+            // Create new OKR
+            console.log('Creating new OKR with payload:', payload);
             await createRow(currentTable, payload);
-            console.log('Item created successfully');
+            console.log('OKR created successfully');
         } else {
-            // Update existing item
-            console.log('Updating item with ID:', editedItemPkValue, 'payload:', payload);
+            // Update existing OKR
+            console.log('Updating OKR with ID:', editedItemPkValue, 'payload:', payload);
             await updateRow(currentTable, editedItemPkValue, payload);
-            console.log('Item updated successfully');
+            console.log('OKR updated successfully');
         }
         
         // Clear form and refresh display
@@ -182,7 +201,7 @@ async function saveRow() {
         closeModal();
         
     } catch (error) {
-        console.error('Error adding/updating item:', error);
+        console.error('Error adding/updating OKR:', error);
         handleError(error, { scope: 'modal' });
     }
 }
@@ -205,7 +224,7 @@ async function prepareEditForm(rowIndex) {
         console.log('Row data to edit:', rowData);
         
         // Build dynamic form with current data and get metadata
-        const { tableMeta, formFields } = await buildDynamicForm(currentTable, rowData);
+        const { tableMeta, formFields } = await buildDynamicForm(currentTable, rowData, inferOKRFieldType);
         
         // Update global state
         currentTableMeta = tableMeta;
@@ -281,13 +300,13 @@ async function deleterow(rowIndex) {
         }
         
         // Confirm deletion
-        if (!confirm(`Are you sure you want to delete this item?`)) {
+        if (!confirm(`Are you sure you want to delete this OKR?`)) {
             return;
         }
         
-        console.log('Deleting item with primary key:', pkValue);
+        console.log('Deleting OKR with primary key:', pkValue);
         await deleteRow(currentTable, pkValue);
-        console.log('Item deleted successfully');
+        console.log('OKR deleted successfully');
         displayallitems(currentTable);
         
     } catch (error) {
@@ -297,16 +316,16 @@ async function deleterow(rowIndex) {
 }
 
 /**
- * Handles form submission with validation for adding/editing items
+ * Handles form submission with validation for adding/editing OKRs
  * Uses the generic validation and submission function from validation.mjs
  * @throws {Error} If validation or submission fails
  */
 async function handleFormSubmission(){
     try {
-        console.log("Handling form submission for item addition/editing");
+        console.log("Handling form submission for OKR addition/editing");
         
         // Use the generic validation and submission function with custom field type inference
-        await validateAndSubmitForm(currentFormFields, currentTableMeta, saveRow, 'modal', inferProductFieldType);
+        await validateAndSubmitForm(currentFormFields, currentTableMeta, saveRow, 'modal', inferOKRFieldType);
     } catch (error) {
         console.error('Error in form submission:', error);
         handleError(error, { scope: 'modal' });
@@ -378,7 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
             addNewBtn.addEventListener('click', async () => {
                 try {
                     editedItemPkValue = null;
-                    const { tableMeta, formFields } = await buildDynamicForm(currentTable);
+                    const { tableMeta, formFields } = await buildDynamicForm(currentTable, null, inferOKRFieldType);
                     currentTableMeta = tableMeta;
                     currentFormFields = formFields;
                 } catch (error) {

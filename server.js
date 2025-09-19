@@ -13,7 +13,7 @@ const db = new sqlite3.Database('./products.db', (err) => {
   if (err) {
     console.error(err.message);
   }
-  console.log('Connected to the Items Management Database - products.db SQLite Db File');
+  console.log('Connected to the Demo App Database - products.db SQLite Db File');
 });
 
 app.use(express.json());
@@ -109,13 +109,39 @@ app.post('/api/:table', (req, res) => {
     const insertable = meta.columns.filter((c) => c !== meta.primaryKey);
     const keys = insertable.filter((c) => Object.prototype.hasOwnProperty.call(req.body, c));
     if (keys.length === 0) return res.status(400).send('No valid columns provided in request body');
-    const columnClause = keys.map(quoteIdentifier).join(', ');
-    const placeholders = keys.map(() => '?').join(', ');
-    const values = keys.map((k) => req.body[k]);
+    
+    // Auto-populate timestamp fields for new records
+    const now = new Date();
+    const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+    const timeStr = now.toTimeString().split(' ')[0]; // HH:MM:SS format
+    const datetimeStr = now.toISOString(); // Full ISO datetime
+    
+    const autoFields = {};
+    if (meta.columns.includes('createdon') && !keys.includes('createdon')) {
+      autoFields.createdon = dateStr;
+    }
+    if (meta.columns.includes('modifiedon') && !keys.includes('modifiedon')) {
+      autoFields.modifiedon = dateStr;
+    }
+    if (meta.columns.includes('modifiedtime') && !keys.includes('modifiedtime')) {
+      autoFields.modifiedtime = timeStr;
+    }
+    
+    // Add auto fields to keys and values
+    const allKeys = [...keys, ...Object.keys(autoFields)];
+    const allValues = [...keys.map((k) => req.body[k]), ...Object.values(autoFields)];
+    
+    const columnClause = allKeys.map(quoteIdentifier).join(', ');
+    const placeholders = allKeys.map(() => '?').join(', ');
     const sql = `INSERT INTO ${quoteIdentifier(table)} (${columnClause}) VALUES (${placeholders})`;
-    db.run(sql, values, function(runErr) {
-      if (runErr) return res.status(500).send('Internal server error');
-      const response = Object.fromEntries(keys.map((k, i) => [k, values[i]]));
+    db.run(sql, allValues, function(runErr) {
+      if (runErr) {
+        console.error('Database error:', runErr);
+        console.error('SQL:', sql);
+        console.error('Values:', allValues);
+        return res.status(500).send(`Internal server error: ${runErr.message}`);
+      }
+      const response = Object.fromEntries(allKeys.map((k, i) => [k, allValues[i]]));
       if (meta.primaryKey) response[meta.primaryKey] = this.lastID;
       res.status(201).send(response);
     });
@@ -131,13 +157,35 @@ app.put('/api/:table/:id', (req, res) => {
     const updatable = meta.columns.filter((c) => c !== meta.primaryKey);
     const keys = updatable.filter((c) => Object.prototype.hasOwnProperty.call(req.body, c));
     if (keys.length === 0) return res.status(400).send('No updatable columns provided in request body');
-    const setClause = keys.map((c) => `${quoteIdentifier(c)} = ?`).join(', ');
-    const values = keys.map((k) => req.body[k]);
+    
+    // Auto-update modified timestamp fields
+    const now = new Date();
+    const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+    const timeStr = now.toTimeString().split(' ')[0]; // HH:MM:SS format
+    
+    const autoFields = {};
+    if (meta.columns.includes('modifiedon') && !keys.includes('modifiedon')) {
+      autoFields.modifiedon = dateStr;
+    }
+    if (meta.columns.includes('modifiedtime') && !keys.includes('modifiedtime')) {
+      autoFields.modifiedtime = timeStr;
+    }
+    
+    // Add auto fields to keys and values
+    const allKeys = [...keys, ...Object.keys(autoFields)];
+    const allValues = [...keys.map((k) => req.body[k]), ...Object.values(autoFields)];
+    
+    const setClause = allKeys.map((c) => `${quoteIdentifier(c)} = ?`).join(', ');
     const sql = `UPDATE ${quoteIdentifier(table)} SET ${setClause} WHERE ${quoteIdentifier(meta.primaryKey)} = ?`;
-    db.run(sql, [...values, id], function(runErr) {
-      if (runErr) return res.status(500).send('Internal server error');
+    db.run(sql, [...allValues, id], function(runErr) {
+      if (runErr) {
+        console.error('Database error:', runErr);
+        console.error('SQL:', sql);
+        console.error('Values:', [...allValues, id]);
+        return res.status(500).send(`Internal server error: ${runErr.message}`);
+      }
       if (this.changes === 0) return res.status(404).send('Item not found');
-      const response = Object.fromEntries(keys.map((k, i) => [k, values[i]]));
+      const response = Object.fromEntries(allKeys.map((k, i) => [k, allValues[i]]));
       response[meta.primaryKey] = id;
       res.status(200).send(response);
     });
@@ -176,6 +224,12 @@ app.get('/api/:table/search/:q', (req, res) => {
 });
 
 //End of Dynamic CRUD API - added by Cursor
+
+// Handle .mjs files with proper MIME type
+app.get('*.mjs', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.sendFile(path.join(__dirname, req.path));
+});
 
 // Handle all other routes by serving the index.html file (SPA)
 app.get('*', (req, res) => {
