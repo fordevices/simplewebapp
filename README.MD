@@ -27,6 +27,19 @@
     U Update an exisiting Item
     D Delete and Exisitng Item
 
+### Generic Infrastructure
+    This application provides a complete generic infrastructure for building data management systems
+    The infrastructure includes:
+    - Dynamic form generation based on database schema
+    - Generic REST API endpoints for any table
+    - Client-side validation with extensible rules
+    - Responsive Bootstrap UI components
+    - Real-time search and filtering
+    - Automatic field type detection and input generation
+    
+    See OKR_BUILDING_GUIDE.md for detailed instructions on how to build other management systems
+    (like OKR management) using this same infrastructure.
+
 
 ## Where to start ?
     Recommended approach is to copy paste from this repo and not clone
