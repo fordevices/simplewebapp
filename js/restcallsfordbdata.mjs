@@ -1,4 +1,9 @@
-// Generic REST API accessors for CRUD and search
+/**
+ * Copyright (c) 2025, Kirahi LLC
+ * Max Seenisamy kirahi.com
+ * 
+ * Generic REST API accessors for CRUD and search
+ */
 
 /**
  * Fetches all rows from a specified table

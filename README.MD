@@ -37,8 +37,9 @@
     - Real-time search and filtering
     - Automatic field type detection and input generation
     
-    See OKR_BUILDING_GUIDE.md for detailed instructions on how to build other management systems
-    (like OKR management) using this same infrastructure.
+    📖 **Documentation**:
+    - [OKR_BUILDING_GUIDE.md](OKR_BUILDING_GUIDE.md) - Detailed instructions on how to build other management systems (like OKR management) using this same infrastructure
+    - [INFRASTRUCTURE_DESIGN_NOTES.md](INFRASTRUCTURE_DESIGN_NOTES.md) - Comprehensive notes on infrastructure design, separation of concerns, and how to adapt to different databases or UI frameworks
 
 
 ## Where to start ?

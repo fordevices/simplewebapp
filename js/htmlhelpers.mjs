@@ -1,4 +1,9 @@
-// HTML Helper functions for dynamic form and table rendering
+/**
+ * Copyright (c) 2025, Kirahi LLC
+ * Max Seenisamy kirahi.com
+ * 
+ * HTML Helper functions for dynamic form and table rendering
+ */
 import { handleError } from './validation.mjs';
 import { fetchTableMeta } from './restcallsfordbdata.mjs';
 

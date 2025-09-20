@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2025, Kirahi LLC
+ * Max Seenisamy kirahi.com
+ * 
+ * Express.js server for Item Management System
+ */
+
 import express from 'express';
 import sqlite3 from 'sqlite3';
 import path from 'path';

@@ -1,4 +1,9 @@
-// ES Module for item management - Products Table in the database
+/**
+ * Copyright (c) 2025, Kirahi LLC
+ * Max Seenisamy kirahi.com
+ * 
+ * ES Module for item management - Products Table in the database
+ */
 // this is the only MJS file that will be imported into the index.html file
 // all the other MJS files will be imported into this file
 // to change the table, you need to change the currentTable variable

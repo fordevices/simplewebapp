@@ -1,4 +1,9 @@
-// ES Module for field validation and error handling
+/**
+ * Copyright (c) 2025, Kirahi LLC
+ * Max Seenisamy kirahi.com
+ * 
+ * ES Module for field validation and error handling
+ */
 
 /**
  * Validation error class
