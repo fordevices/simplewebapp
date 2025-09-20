@@ -36,7 +36,7 @@
     - Responsive Bootstrap UI components
     - Real-time search and filtering
     - Automatic field type detection and input generation
-- [Building Complex Apps Guide](https://github.com/fordevices/simplewebapp/blob/main/INFRASTRUCTURE_DESIGN_NOTES.md) - Detailed instructions on how to build other management systems (like OKR management) using this same infrastructure
+- [Building Complex Apps Guide](OKR_BUILDING_GUIDE.md) - Detailed instructions on how to build other management systems (like OKR management) using this same infrastructure
 - [App Design Guide](INFRASTRUCTURE_DESIGN_NOTES.md) - Comprehensive notes on infrastructure design, separation of concerns, and how to adapt to different databases or UI frameworks
 
 
