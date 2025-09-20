@@ -38,7 +38,7 @@
     - Automatic field type detection and input generation
     
     📖 **Documentation**:
-    - [OKR_BUILDING_GUIDE.md](OKR_BUILDING_GUIDE.md) - Detailed instructions on how to build other management systems (like OKR management) using this same infrastructure
+    - ([OKR_BUILDING_GUIDE.md](https://github.com/fordevices/simplewebapp/blob/main/INFRASTRUCTURE_DESIGN_NOTES.md)) - Detailed instructions on how to build other management systems (like OKR management) using this same infrastructure
     - [INFRASTRUCTURE_DESIGN_NOTES.md](INFRASTRUCTURE_DESIGN_NOTES.md) - Comprehensive notes on infrastructure design, separation of concerns, and how to adapt to different databases or UI frameworks
 
 
@@ -76,5 +76,5 @@
 - This just a sample app to help you get started fast.
 - "Downloading" directly or through NPM is all you need the internet for to develop this
 - The idea is for you to not have to depend on CDNs or some big Cloud provider
-- The idea is for you to not depend on AI for smaller tasks
+- The idea is for you to effectively use AI for developing software
 - The idea is for you to be smart about what and when to use AI for development
